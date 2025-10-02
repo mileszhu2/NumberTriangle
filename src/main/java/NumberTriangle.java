@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.ArrayList;
 
 /**
  * This is the provided NumberTriangle class to be used in this coding task.
@@ -109,26 +110,86 @@ public class NumberTriangle {
         InputStream inputStream = NumberTriangle.class.getClassLoader().getResourceAsStream(fname);
         BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
 
-
-        // TODO define any variables that you want to use to store things
-
-        // will need to return the top of the NumberTriangle,
-        // so might want a variable for that.
-        NumberTriangle top = null;
+        ArrayList<NumberTriangle> needchildren = new ArrayList<>();
 
         String line = br.readLine();
+        // will need to return the top of the NumberTriangle,
+        // so might want a variable for that.
+        NumberTriangle top = new NumberTriangle(Integer.parseInt(line));
+        needchildren.add(top);
+        line = br.readLine();
+
         while (line != null) {
-
-            // remove when done; this line is included so running starter code prints the contents of the file
-            System.out.println(line);
-
-            // TODO process the line
+            String[] nums = line.split(" ");
+            NumberTriangle parent = null;
+            for(int i = 0; i < nums.length; i++) {
+                String num = nums[i];
+                NumberTriangle tri = new NumberTriangle(Integer.parseInt(num));
+                needchildren.add(tri);
+                if(parent != null) {
+                    parent.setRight(tri);
+                }
+                if(i < nums.length - 1) {
+                    parent = needchildren.remove(0);
+                    parent.setLeft(tri);
+                }
+            }
 
             //read the next line
             line = br.readLine();
         }
         br.close();
         return top;
+    }
+
+    class Result {
+        private String value1;
+        private ArrayList<NumberTriangle> value2;
+
+        public Result(String value1, ArrayList<NumberTriangle> value2) {
+            this.value1 = value1;
+            this.value2 = value2;
+        }
+
+        public String getValue1() {
+            return value1;
+        }
+
+        public ArrayList<NumberTriangle> getValue2() {
+            return value2;
+        }
+    }
+
+    private Result toStringHelper(ArrayList<NumberTriangle> toprint) {
+        StringBuilder result = new StringBuilder("\n");
+        ArrayList<NumberTriangle> nextrow = new ArrayList<>();
+        for (int i = 0; i < toprint.size(); i++) {
+            NumberTriangle tri = toprint.get(i);
+            if (!tri.isLeaf()) {
+                nextrow.add(tri.left);
+                if (i == toprint.size() - 1) {
+                    nextrow.add(tri.right);
+                }
+            }
+            String num = Integer.toString(tri.getRoot()) + " ";
+            result.append(num);
+        }
+        return new Result(result.toString(), nextrow);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder();
+        result.append(Integer.toString(this.root));
+        ArrayList<NumberTriangle> toprint = new ArrayList<>();
+        toprint.add(this.left);
+        toprint.add(this.right);
+        while (!toprint.isEmpty()) {
+            Result res = toStringHelper(toprint);
+            result.append(res.value1);
+            toprint = res.value2;
+        }
+        return result.toString();
     }
 
     public static void main(String[] args) throws IOException {
@@ -139,6 +200,6 @@ public class NumberTriangle {
         // you can implement NumberTriangle's maxPathSum method if you want to try to solve
         // Problem 18 from project Euler [not for credit]
         mt.maxSumPath();
-        System.out.println(mt.getRoot());
+        System.out.println(mt.toString());
     }
 }
