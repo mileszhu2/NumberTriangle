@@ -1,6 +1,8 @@
 import java.io.*;
 import java.util.ArrayList;
 
+import static java.lang.Integer.max;
+
 /**
  * This is the provided NumberTriangle class to be used in this coding task.
  *
@@ -58,13 +60,20 @@ public class NumberTriangle {
      * Set the root of this NumberTriangle to be the max path sum
      * of this NumberTriangle, as defined in Project Euler problem 18.
      * After this method is called, this NumberTriangle should be a leaf.
-     *
+     * <p>
      * Hint: think recursively and use the idea of partial tracing from first year :)
-     *
+     * <p>
      * Note: a NumberTriangle contains at least one value.
+     *
+     * @return
      */
-    public void maxSumPath() {
-        // for fun [not for credit]:
+    public int maxSumPath() {
+        if (!this.isLeaf()) {
+            this.root += max(this.left.maxSumPath(), this.right.maxSumPath());
+            this.left = null;
+            this.right = null;
+        }
+        return root;
     }
 
 
@@ -186,25 +195,31 @@ public class NumberTriangle {
     public String toString() {
         StringBuilder result = new StringBuilder();
         result.append(Integer.toString(this.root));
-        ArrayList<NumberTriangle> toprint = new ArrayList<>();
-        toprint.add(this.left);
-        toprint.add(this.right);
-        while (!toprint.isEmpty()) {
-            Result res = toStringHelper(toprint);
-            result.append(res.value1);
-            toprint = res.value2;
+        if(this.isLeaf()) {
+            return result.toString();
         }
-        return result.toString();
+        else {
+            ArrayList<NumberTriangle> toprint = new ArrayList<>();
+            toprint.add(this.left);
+            toprint.add(this.right);
+            while (!toprint.isEmpty()) {
+                Result res = toStringHelper(toprint);
+                result.append(res.value1);
+                toprint = res.value2;
+            }
+            return result.toString();
+        }
     }
 
     public static void main(String[] args) throws IOException {
 
         NumberTriangle mt = NumberTriangle.loadTriangle("input_tree.txt");
+        System.out.println(mt.toString());
 
         // [not for credit]
         // you can implement NumberTriangle's maxPathSum method if you want to try to solve
         // Problem 18 from project Euler [not for credit]
-        mt.maxSumPath();
+        System.out.println(mt.maxSumPath());
         System.out.println(mt.toString());
     }
 }
